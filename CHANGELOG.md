@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependabot maintenance:** cover Admin frontend/backend and Local AI manifests with weekly compatible version/security groups; keep model-stack, NumPy, Piper and major migrations individual, and reduce version-update PR limits without suppressing security fixes.
 - Update the pinned Codex review action to 1.12 and align the workflow-policy regression assertion with its new commit SHA.
 
 - Reworked `AVA.mdc` as the shared AI-assistant entry point for project questions,
