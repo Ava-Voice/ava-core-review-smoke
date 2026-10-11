@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Admin frontend security follow-up:** adopt React Router 7.18.4 and patched DOMPurify, selector-parser, and brace-expansion transitive versions, including nested parser copies used by Tailwind typography. Keep call-detail closure and URL removal in the same transition so Router 7 cannot reopen a dismissed deep link.
+
 - **Admin frontend dependencies:** update Axios, js-yaml, Nano ID, source-map-js, Vitest, and Browserslist metadata; reconcile the overlapping browser-mapping updates without discarding either update.
 - **Admin HTTP redirect credentials:** update aiohttp to 3.14.5 so cross-origin redirects strip every duplicate Authorization, Cookie, and Proxy-Authorization header. Regression tests retain same-origin credentials and ordinary request headers.
 
