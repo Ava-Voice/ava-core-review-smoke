@@ -124,6 +124,40 @@ def load_yaml_with_env_expansion(path: str) -> dict:
         
         # Parse YAML
         config_data = yaml.safe_load(config_str_expanded)
+
+        # MCP HTTP authentication is resolved by its client at use time. Keep
+        # raw header templates so a literal value cannot acquire false
+        # environment-reference provenance during YAML expansion.
+        if isinstance(config_data, dict) and isinstance(config_data.get("mcp"), dict):
+            expanded_servers = config_data["mcp"].get("servers", {})
+            try:
+                raw_data = yaml.safe_load(config_str)
+            except yaml.YAMLError:
+                # Flow-style environment references can be valid only after
+                # expansion. Preserve that config, but do not trust expanded
+                # headers as raw references. The client rejects these empty
+                # values before connecting, isolating failure to that server.
+                raw_data = None
+                if isinstance(expanded_servers, dict):
+                    for expanded_server in expanded_servers.values():
+                        if (
+                            isinstance(expanded_server, dict)
+                            and isinstance(expanded_server.get("headers"), dict)
+                        ):
+                            expanded_server["headers"] = {
+                                name: "" for name in expanded_server["headers"]
+                            }
+            raw_mcp = raw_data.get("mcp") if isinstance(raw_data, dict) else None
+            raw_servers = raw_mcp.get("servers", {}) if isinstance(raw_mcp, dict) else {}
+            if isinstance(raw_servers, dict) and isinstance(expanded_servers, dict):
+                for server_id, raw_server in raw_servers.items():
+                    expanded_server = expanded_servers.get(server_id)
+                    if (
+                        isinstance(raw_server, dict)
+                        and isinstance(raw_server.get("headers"), dict)
+                        and isinstance(expanded_server, dict)
+                    ):
+                        expanded_server["headers"] = raw_server["headers"]
         
         return config_data if config_data is not None else {}
         

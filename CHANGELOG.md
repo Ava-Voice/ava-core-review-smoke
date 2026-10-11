@@ -17,12 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Streamable HTTP MCP backend draft:** explicit YAML endpoint and environment-referenced authentication headers use the official Python MCP SDK for protocol negotiation, session headers, JSON/SSE responses and paginated tool discovery. Existing stdio and Agent filtering remain intact. A timed-out tool call is not automatically replayed; its effect may require server-side reconciliation. Live in-call allowed/denied acceptance is complete; Admin UI creation/editing remains follow-up #703.
 - **Opt-in cloud provider startup connection recovery** ([#676](https://github.com/hkjarral/AVA-AI-Voice-Agent-for-Asterisk/issues/676)): Google Live/Vertex, OpenAI Realtime, Grok, Deepgram Agent, and ElevenLabs Agent can retry transient initial connection failures with configurable opening and total connection deadlines. Provider forms expose the controls under Expert settings. Upgrades retain a 10-second opening timeout, zero retries, and no added aggregate deadline; setup, mid-call recovery, keepalive, terminal failure routing, and Local behavior are unchanged. See [connection recovery and real-call verification](docs/Provider-Connection-Recovery.md). Reported and supported with production evidence by [@MVECoder](https://github.com/MVECoder).
 
 - **Google Developer long-response option:** **Providers → Google Live → API Mode → Enable long-response playback** enables a bounded audio backlog for that provider instance. It defaults off on new and existing installations, requires saving and restarting the AI Engine, and is hidden in Vertex mode. The saved preference is ignored on actual Vertex connections; other providers and modular pipelines do not use it. See the [Google setup guide](docs/Provider-Google-Setup.md#long-response-playback-developer-api-opt-in) for configuration and upgrade instructions.
 
 ### Fixed
 
+- Preserve expanded YAML compatibility when raw flow-style environment references cannot be parsed for MCP header restoration; credentialed HTTP servers fail closed without exposing expanded header values.
+- **Streamable HTTP MCP diagnostics:** suppress SDK/HTTP wire traces that can
+  include session headers or endpoint URLs, and keep remote RPC error text out
+  of application traceback logs. Tool-outcome classification and no-replay
+  behavior are unchanged.
 - **Whisper idle finalization:** finalize buffered speech after per-session silence without requiring another audio frame, while preserving newer speech that arrives during a slow decode or backend-lock wait. Repeated words in distinct speech segments remain separate turns; duplicate finalization of one segment stays suppressed.
 - **DTMF log privacy:** omit raw ARI/AudioSocket digits and payload-bearing exception bodies from structured logs while preserving native digit delivery to attended-transfer and AudioSocket handlers. Nested DTMF fields are fully redacted rather than retaining a prefix.
 - **Local AI provider test environment expansion:** shared YAML and Admin test paths now parse braced environment references in linear time, including empty `:-` and `:=` defaults, without stalling on malformed operator-supplied values. Existing authenticated WebSocket test ordering and modular capability checks remain unchanged.
